@@ -11,7 +11,3 @@ server.on('data', (msg, socket) => {
 server.on('error', (err, socket) => {
     console.log(err);
 });
-
-server.on('reboot', (socket) => {
-    console.log('服务端重启');
-});
