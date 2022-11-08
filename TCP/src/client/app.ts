@@ -25,7 +25,6 @@ export interface MsgDataStruct {
 // 启动配置
 export const SOCKET_OPTIONS = {
     port: 9009,
-    // host: '127.0.0.1',
 };
 
 export interface TcpClientOptions {

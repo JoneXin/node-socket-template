@@ -49,6 +49,7 @@ class TcpServer extends events.EventEmitter {
             socket.on('data', (msg) => this.messageHandler.call(this, msg, socket));
             socket.on('error', (err) => this.errorHandler.call(this, err, socket));
             socket.on('end', () => this.connEndHander.call(this, socket));
+            socket.pipe(socket);
         });
         this.server.listen(port || 9009, () => {
             console.log('server start');
