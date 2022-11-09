@@ -1,4 +1,14 @@
 {
+    "name": "node-socket-template",
+    "description": "node socket template contain ws tcp tls https ...",
+    "keywords": [
+        "websocket",
+        "tcp",
+        "tls",
+        "https",
+        "template"
+    ],
+    "author": "Jone Xin",
     "scripts": {
         "start:tcp-server": "cd ./TCP & tsc & node ./test/server.js",
         "start:tcp-client": "cd ./TCP & tsc & node ./test/client.js",
