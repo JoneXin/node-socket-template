@@ -2,7 +2,10 @@
     "scripts": {
         "start:tcp-server": "cd ./TCP & tsc & node ./test/server.js",
         "start:tcp-client": "cd ./TCP & tsc & node ./test/client.js",
-        "build:tcp": "cd ./TCP & tsc"
+        "build:tcp": "cd ./TCP & tsc",
+        "start:udp-server": "cd ./UDP & tsc & node ./test/server.js",
+        "start:udp-client": "cd ./UDP & tsc & node ./test/client.js",
+        "build:udp": "cd ./UDP & tsc"
     },
     "devDependencies": {
         "@types/node": "^18.11.9"
