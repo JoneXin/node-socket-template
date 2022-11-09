@@ -6,13 +6,20 @@
 ```txt
 node-socket-template
  ├─ TCP
- │ ├─ dist // 打包位置
- │ │
+ │ ├─ dist
  │ ├─ src
  │ │ ├─ client
- │ │ │ └─ app.ts // tcp client source code
+ │ │ │ └─ app.ts
  │ │ └─ server
- │ │ │ └─ app.ts // tcp server source code
+ │ │ │ └─ app.ts
+ │ ├─ test
+ │ │ ├─ client.js
+ │ │ └─ server.js
+ │ └─ tsconfig.json
+ ├─ UDP
+ │ ├─ dist
+ │ ├─ src
+ │ │ └─ app.ts
  │ ├─ test
  │ │ ├─ client.js
  │ │ └─ server.js
@@ -21,6 +28,7 @@ node-socket-template
  ├─ package.json
  ├─ README.md
  └─ tsconfig.json
+
 
 ```
 
