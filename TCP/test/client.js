@@ -1,6 +1,6 @@
 const { TcpClient } = require('../dist/client/app');
 
-let client = new TcpClient();
+let client = new TcpClient({ port: 9009 });
 
 client.on('data', (data) => {
     console.log(data);

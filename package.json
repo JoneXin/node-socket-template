@@ -5,7 +5,13 @@
         "build:tcp": "cd ./TCP & tsc",
         "start:udp-server": "cd ./UDP & tsc & node ./test/server.js",
         "start:udp-client": "cd ./UDP & tsc & node ./test/client.js",
-        "build:udp": "cd ./UDP & tsc"
+        "build:udp": "cd ./UDP & tsc",
+        "gen_ca_crt": "cd ./TLS & openssl genrsa -out ./keys/ca.key 1024 & openssl req -new -key ./keys/ca.key -out ./keys/ca.csr & openssl x509 -req -in ./keys/ca.csr -signkey ./keys/ca.key -out ./keys/ca.crt ",
+        "gen_server_rsa": "cd ./TLS & openssl genrsa -out ./keys/server.key 1024 & openssl req -new -key ./keys/server.key -out ./keys/server.csr & openssl rsa -in ./keys/server.key -pubout -out ./keys/server.pem & openssl x509 -req -CA ./keys/ca.crt -CAkey ./keys/ca.key -CAcreateserial -in ./keys/server.csr -out ./keys/server.crt",
+        "gen_client_rsa": "cd ./TLS & openssl genrsa -out ./keys/client.key 1024 & openssl req -new -key ./keys/client.key -out ./keys/client.csr & openssl rsa -in ./keys/client.key -pubout -out ./keys/client.pem & openssl x509 -req -CA ./keys/ca.crt -CAkey ./keys/ca.key -CAcreateserial -in ./keys/client.csr -out ./keys/client.crt",
+        "start:tls-server": "cd ./TLS & tsc & node ./test/server.js",
+        "start:tls-client": "cd ./TLS & tsc & node ./test/client.js",
+        "build:tls": "cd ./TLS & tsc"
     },
     "devDependencies": {
         "@types/node": "^18.11.9"

@@ -48,30 +48,10 @@ node-socket-template
 ```js
 lconst { TcpClient } = require('../dist/client/app');
 
-let client = new TcpClient();
-
-client.on('data', (data) => {
-    console.log(data);
-});
-
-client.on('error', (err) => {
-    console.log(err, '--000--');
-});
-
-client.on('reboot', ({ rebootTimes, isReboot }) => {
-    console.log('reboot', '重启次数：', rebootTimes, '是否开启重启：', isReboot);
-});
-
-
-```
-> 自定义格式
-
-```js
-
-const { TcpClient } = require('../dist/client/app');
-clinet.setClientOptions({
-    customMsg: true,
-});
+// 传输接收 是buffer
+//clinet.setClientOptions({
+//    customMsg: true,
+//});
 
 let client = new TcpClient();
 
@@ -88,10 +68,6 @@ client.on('reboot', ({ rebootTimes, isReboot }) => {
 });
 
 
-setInterval(() => {
-    clinet.send('案件十大');
-    clinet.send(Buffer.from([2, 2, 1]));
-}, 2000);
 ```
 
 #### 1.2, server
@@ -101,6 +77,11 @@ setInterval(() => {
 const { TcpServer } = require('../dist/server/app');
 
 const server = new TcpServer();
+
+// 传输接收 直接是buffer
+//server.setClientOptions({
+//    customMsg: true,
+//});
 
 server.on('data', (msg, socket) => {
     const { cmd, type, data } = msg;
@@ -158,6 +139,122 @@ udpServer.on('data', (data) => {
 });
 
 udpServer.on('error', (err) => {
+    console.log(err);
+});
+
+```
+
+## 3，TLS（加密的TCP数据传输）
+
+### TLS/SSL:
+> TLS加密基于 公私钥的基础上的非对称结构，服务端，客户端都拥有自己的私钥，用公钥加密传输内容，用私钥解密传输内容。
+
+### 下载 openssl 两篇博客按流程就行
+- windows
+> https://www.cnblogs.com/dingshaohua/p/12271280.html
+
+- .unix
+> $: brew install openssl
+
+传输流程:
+- 交换公钥
+> 1, 客户端---> 客户端公钥 ---> 传输 ----> 服务端接受客户端公钥
+> 2, 服务端---> 服务端公钥 ---> 传输 ----> 客户端接受服务端公钥
+
+- 加密传输
+
+> 1, 客户端 -->数据(服务端公钥加密) --> 服务端通过自己的私钥解密
+> 2, 服务端 -->数据(客户端公钥加密) --> 客户端通过自己的私钥解密
+
+node 通过openssl 实现，生成秘钥流程：
+- 生成私钥
+```shell
+    // 生成 1024 长度的服务端私钥
+    openssl genrsa -out server.key 1024
+
+    // 生成 1024 长度的客户端私钥
+    openssl genrsa -out client.key 1024
+```
+
+- 通过私钥生成公钥
+
+```shell
+    // 生成服务端公钥
+    openssl rsa -in server.key -pubout -out server.pem
+
+     // 生成客户端公钥
+    openssl rsa -in client.key -pubout -out server.pem
+```
+
+- 认证公钥（为什么要认证可以google一下，反正就是为了防止中间窃取）
+
+这里就不用CA申请的数字证书了，直接自己自己颁发一拨
+> 1, 生成 根证书（模拟CA）
+
+```
+    openssl genrsa -out ca.key 1024
+    openssl req -new -key ca.key -out ca.csr
+    openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt    
+```
+> 2, 根据 根证书给服务端和客户单的私钥签名
+
+```shell
+    // 给私钥生成 服务端 数字证书  (签名)
+    openssl req -new -key server.key -out server.csr
+    openssl x509 -req -CA ca.csr -CAkey ca.key -CAcreateserial -in server.csr -out server.crt
+
+    // 给私钥生成 客户端 数字证书  (签名)
+    openssl req -new -key client.key -out client.csr
+    openssl x509 -req -CA ca.csr -CAkey ca.key -CAcreateserial -in client.csr -out client.crt
+```
+
+- node 代码模板
+
+这里通过快捷键生成申述流程:
+
+```shell
+    1, npm run gen_ca_crt 生成CA跟证书
+    2, npm run gen_client_rsa 客户端: 生成公私钥并签名
+    3, npm run gen_server_rsa 服务端: 生成公私钥并签名
+```
+秘钥目录: /TLS/keys/...
+
+- 客户端示例(模板实例跟TCP 本质一样，就是加了一层 TLS/SSL)
+
+```js
+const { TlsClient } = require('../dist/client/app');
+
+const tlsClient = new TlsClient(12341);
+
+tlsClient.on('data', (data) => {
+    console.log(data);
+});
+
+tlsClient.on('error', (err) => {
+    console.log(err, '--000--');
+});
+
+tlsClient.on('reboot', ({ rebootTimes, isReboot }) => {
+    console.log('reboot', '重启次数：', rebootTimes, '是否开启重启：', isReboot);
+});
+
+
+```
+
+- 服务端示例
+
+```js
+
+const { TlsServer } = require('../dist/server/app');
+const tlsServer = new TlsServer(12341);
+
+tlsServer.on('data', (msg, socket) => {
+    const { cmd, type, data } = msg;
+    console.log(cmd, type, data);
+    server.sendJSON({ cmd: Cmd.DATA, type: DataStreamType.JSON, data: '收到！' }, socket);
+});
+
+tlsServer.on('error', (err, socket) => {
     console.log(err);
 });
 
